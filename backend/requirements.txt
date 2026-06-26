@@ -1,0 +1,41 @@
+# Backend Requirements
+# ─────────────────────────────────────────────────────────
+# This file will be populated as we build each module.
+# Pinned versions will be added once each library is integrated.
+
+# ── API Framework ─────────────────────────────────────────
+fastapi
+uvicorn[standard]
+python-multipart
+
+# ── Agent / LLM ───────────────────────────────────────────
+langchain
+langgraph
+langchain-openai
+openai
+
+# ── RAG ───────────────────────────────────────────────────
+chromadb
+tiktoken
+
+# ── Database ──────────────────────────────────────────────
+sqlalchemy
+alembic
+psycopg2-binary     # PostgreSQL driver (prod)
+# aiosqlite         # SQLite async driver (dev - uncomment when needed)
+
+# ── Data Validation ───────────────────────────────────────
+pydantic
+pydantic-settings
+
+# ── Environment & Config ──────────────────────────────────
+python-dotenv
+
+# ── Utilities ─────────────────────────────────────────────
+httpx
+tenacity            # Retry logic
+
+# ── Testing ───────────────────────────────────────────────
+pytest
+pytest-asyncio
+httpx               # For FastAPI test client
