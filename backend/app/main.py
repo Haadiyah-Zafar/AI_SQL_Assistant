@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import databases, upload
+from app.routes import databases, query, upload
 from config.settings import get_settings
 
 
@@ -23,6 +23,7 @@ app.add_middleware(
 
 app.include_router(upload.router, prefix="/api")
 app.include_router(databases.router, prefix="/api")
+app.include_router(query.router, prefix="/api")
 
 
 @app.get("/health", tags=["health"])
