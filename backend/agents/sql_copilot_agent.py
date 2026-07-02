@@ -1,7 +1,9 @@
 from models.agent_state import AgentState
+from models.insight_models import InsightRequest
 from tools.schema_tool import SchemaTool, SchemaToolError
 from tools.sql_executor_tool import SQLExecutorTool, SQLExecutorToolError
 from tools.sql_validator_tool import SQLValidatorTool
+from tools.result_insight_tool import ResultInsightTool, ResultInsightToolError
 
 
 class SQLCopilotAgent:
@@ -10,10 +12,12 @@ class SQLCopilotAgent:
         schema_tool: SchemaTool | None = None,
         validator_tool: SQLValidatorTool | None = None,
         executor_tool: SQLExecutorTool | None = None,
+        insight_tool: ResultInsightTool | None = None,
     ) -> None:
         self.schema_tool = schema_tool or SchemaTool()
         self.validator_tool = validator_tool or SQLValidatorTool()
         self.executor_tool = executor_tool or SQLExecutorTool()
+        self.insight_tool = insight_tool or ResultInsightTool()
 
     def run_generated_sql(self, state: AgentState) -> AgentState:
         if not state.database_id:
@@ -46,6 +50,19 @@ class SQLCopilotAgent:
                 sql=state.generated_sql,
             )
         except SQLExecutorToolError as exc:
+            state.error = str(exc)
+            return state
+
+        try:
+            insight = self.insight_tool.explain(
+                InsightRequest(
+                    user_question=state.user_question,
+                    generated_sql=state.generated_sql,
+                    query_result=state.query_result,
+                )
+            )
+            state.explanation = insight.explanation
+        except ResultInsightToolError as exc:
             state.error = str(exc)
             return state
 
