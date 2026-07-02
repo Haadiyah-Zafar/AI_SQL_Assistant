@@ -15,24 +15,24 @@ class SQLGeneratorTool:
         self.prompt_loader = prompt_loader or PromptLoader()
 
     def generate(self, request: SQLGenerationRequest) -> SQLGenerationResult:
-        if not self.settings.openai_api_key:
+        if not self.settings.groq_api_key:
             raise SQLGeneratorToolError(
-                "SQL generation requires OPENAI_API_KEY to be configured."
+                "SQL generation requires GROQ_API_KEY to be configured."
             )
 
         prompt = self.prompt_loader.load("generate_sql.txt")
         messages = self._build_messages(prompt, request)
 
         try:
-            from openai import OpenAI
+            from groq import Groq
         except ImportError as exc:
             raise SQLGeneratorToolError(
-                "The openai package is not installed. Install backend requirements first."
+                "The groq package is not installed. Install backend requirements first."
             ) from exc
 
-        client = OpenAI(api_key=self.settings.openai_api_key)
+        client = Groq(api_key=self.settings.groq_api_key)
         response = client.chat.completions.create(
-            model=self.settings.openai_model,
+            model=self.settings.groq_model,
             messages=messages,
             temperature=0,
             response_format={"type": "json_object"},

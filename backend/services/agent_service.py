@@ -4,16 +4,19 @@ from models.agent_state import AgentState
 from models.sql_generation_models import SQLGenerationRequest
 from tools.schema_tool import SchemaTool, SchemaToolError
 from tools.sql_generator_tool import SQLGeneratorTool, SQLGeneratorToolError
+from tools.schema_retriever_tool import SchemaRetrieverTool
 
 
 class AgentService:
     def __init__(
         self,
         schema_tool: SchemaTool | None = None,
+        schema_retriever_tool: SchemaRetrieverTool | None = None,
         sql_generator_tool: SQLGeneratorTool | None = None,
         sql_copilot_agent: SQLCopilotAgent | None = None,
     ) -> None:
         self.schema_tool = schema_tool or SchemaTool()
+        self.schema_retriever_tool = schema_retriever_tool or SchemaRetrieverTool()
         self.sql_generator_tool = sql_generator_tool or SQLGeneratorTool()
         self.sql_copilot_agent = sql_copilot_agent or SQLCopilotAgent(
             schema_tool=self.schema_tool
@@ -40,11 +43,19 @@ class AgentService:
             return self._to_response(state)
 
         state.intent = "sql_query"
+        retrieval = self.schema_retriever_tool.retrieve_relevant_schema(
+            question=request.question,
+            schema=schema,
+        )
+        state.rag_context = retrieval.context_text
+        generation_schema_context = retrieval.context_text or schema.schema_text
+
         try:
             generation = self.sql_generator_tool.generate(
                 SQLGenerationRequest(
                     user_question=request.question,
-                    schema_context=schema.schema_text,
+                    schema_context=generation_schema_context,
+                    rag_context=state.rag_context,
                     conversation_history=request.conversation_history,
                 )
             )

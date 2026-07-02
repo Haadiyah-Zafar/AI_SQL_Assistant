@@ -73,5 +73,5 @@ def test_agent_service_returns_clear_error_when_sql_generation_is_not_configured
     )
 
     assert response.intent == "sql_query"
-    assert response.error == "SQL generation requires OPENAI_API_KEY to be configured."
+    assert response.error == "SQL generation requires GROQ_API_KEY to be configured."
     assert response.generated_sql is None

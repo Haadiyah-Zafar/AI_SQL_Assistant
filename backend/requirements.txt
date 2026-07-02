@@ -11,8 +11,7 @@ python-multipart
 # ── Agent / LLM ───────────────────────────────────────────
 langchain
 langgraph
-langchain-openai
-openai
+groq
 
 # ── RAG ───────────────────────────────────────────────────
 chromadb
