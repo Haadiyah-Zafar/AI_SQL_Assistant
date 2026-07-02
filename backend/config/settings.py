@@ -11,6 +11,8 @@ class Settings:
         self.max_table_count = int(os.getenv("MAX_TABLE_COUNT", "200"))
         self.sample_row_limit = int(os.getenv("SAMPLE_ROW_LIMIT", "3"))
         self.query_row_limit = int(os.getenv("QUERY_ROW_LIMIT", "1000"))
+        self.openai_api_key = os.getenv("OPENAI_API_KEY")
+        self.openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
         self.upload_dir = Path(os.getenv("UPLOAD_DIR", "data/uploads"))
         self.cors_origins = self._parse_csv_env(
             "CORS_ORIGINS",
