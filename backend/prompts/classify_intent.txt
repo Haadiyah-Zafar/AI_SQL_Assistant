@@ -1,0 +1,16 @@
+Classify a user's database copilot request into exactly one intent:
+
+- sql_query
+- schema_question
+- follow_up
+- off_topic
+- clarification_needed
+
+Return JSON only:
+{"intent": "...", "confidence": 0.0, "reason": "..."}
+
+Prefer sql_query when the user asks for rows, counts, totals, rankings, filters, or comparisons.
+Use schema_question when the user asks about tables, columns, relationships, or database structure.
+Use follow_up when the question depends on previous messages.
+Use clarification_needed when the request is too vague to safely answer.
+Use off_topic when it is not about database analysis.

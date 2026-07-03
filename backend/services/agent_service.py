@@ -1,10 +1,10 @@
+from agents.agent_workflow import AgentWorkflow
 from agents.sql_copilot_agent import SQLCopilotAgent
 from models.agent_models import AgentQuestionRequest, AgentQuestionResponse
 from models.agent_state import AgentState
-from models.sql_generation_models import SQLGenerationRequest
-from tools.schema_tool import SchemaTool, SchemaToolError
-from tools.sql_generator_tool import SQLGeneratorTool, SQLGeneratorToolError
 from tools.schema_retriever_tool import SchemaRetrieverTool
+from tools.schema_tool import SchemaTool
+from tools.sql_generator_tool import SQLGeneratorTool
 
 
 class AgentService:
@@ -14,12 +14,19 @@ class AgentService:
         schema_retriever_tool: SchemaRetrieverTool | None = None,
         sql_generator_tool: SQLGeneratorTool | None = None,
         sql_copilot_agent: SQLCopilotAgent | None = None,
+        agent_workflow: AgentWorkflow | None = None,
     ) -> None:
         self.schema_tool = schema_tool or SchemaTool()
         self.schema_retriever_tool = schema_retriever_tool or SchemaRetrieverTool()
         self.sql_generator_tool = sql_generator_tool or SQLGeneratorTool()
         self.sql_copilot_agent = sql_copilot_agent or SQLCopilotAgent(
             schema_tool=self.schema_tool
+        )
+        self.agent_workflow = agent_workflow or AgentWorkflow(
+            schema_tool=self.schema_tool,
+            schema_retriever_tool=self.schema_retriever_tool,
+            sql_generator_tool=self.sql_generator_tool,
+            sql_copilot_agent=self.sql_copilot_agent,
         )
 
     def answer_question(self, request: AgentQuestionRequest) -> AgentQuestionResponse:
@@ -29,50 +36,7 @@ class AgentService:
             conversation_history=request.conversation_history,
         )
 
-        try:
-            schema = self.schema_tool.retrieve_schema(request.database_id)
-        except SchemaToolError as exc:
-            state.error = str(exc)
-            return self._to_response(state)
-
-        state.schema_context = schema.schema_text
-
-        if self._is_schema_question(request.question):
-            state.intent = "schema_question"
-            state.explanation = schema.schema_text
-            return self._to_response(state)
-
-        state.intent = "sql_query"
-        retrieval = self.schema_retriever_tool.retrieve_relevant_schema(
-            question=request.question,
-            schema=schema,
-            database_id=request.database_id,
-        )
-        state.rag_context = retrieval.context_text
-        generation_schema_context = retrieval.context_text or schema.schema_text
-
-        try:
-            generation = self.sql_generator_tool.generate(
-                SQLGenerationRequest(
-                    user_question=request.question,
-                    schema_context=generation_schema_context,
-                    rag_context=state.rag_context,
-                    conversation_history=request.conversation_history,
-                )
-            )
-        except SQLGeneratorToolError as exc:
-            state.error = str(exc)
-            return self._to_response(state)
-
-        state.generated_sql = generation.sql
-        state.explanation = generation.explanation
-        state = self.sql_copilot_agent.run_generated_sql(state)
-        return self._to_response(state)
-
-    def _is_schema_question(self, question: str) -> bool:
-        normalized = question.lower()
-        schema_terms = {"schema", "table", "tables", "column", "columns"}
-        return any(term in normalized for term in schema_terms)
+        return self._to_response(self.agent_workflow.run(state))
 
     def _to_response(self, state: AgentState) -> AgentQuestionResponse:
         return AgentQuestionResponse(
