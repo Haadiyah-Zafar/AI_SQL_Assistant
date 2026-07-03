@@ -18,6 +18,7 @@ class ValidationResult(BaseModel):
     valid: bool
     issues: list[str] = Field(default_factory=list)
     is_read_query: bool = False
+    requires_approval: bool = False
 
 
 class AgentState(BaseModel):
@@ -30,6 +31,8 @@ class AgentState(BaseModel):
     generated_sql: str | None = None
     validation_result: ValidationResult | None = None
     query_result: QueryResponse | None = None
+    approval_id: str | None = None
+    approval_status: str | None = None
     explanation: str | None = None
     error: str | None = None
     retry_count: int = 0

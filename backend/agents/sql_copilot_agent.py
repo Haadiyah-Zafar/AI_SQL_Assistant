@@ -4,6 +4,7 @@ from tools.schema_tool import SchemaTool, SchemaToolError
 from tools.sql_executor_tool import SQLExecutorTool, SQLExecutorToolError
 from tools.sql_validator_tool import SQLValidatorTool
 from tools.result_insight_tool import ResultInsightTool, ResultInsightToolError
+from tools.approval_tool import ApprovalTool
 
 
 class SQLCopilotAgent:
@@ -13,11 +14,13 @@ class SQLCopilotAgent:
         validator_tool: SQLValidatorTool | None = None,
         executor_tool: SQLExecutorTool | None = None,
         insight_tool: ResultInsightTool | None = None,
+        approval_tool: ApprovalTool | None = None,
     ) -> None:
         self.schema_tool = schema_tool or SchemaTool()
         self.validator_tool = validator_tool or SQLValidatorTool()
         self.executor_tool = executor_tool or SQLExecutorTool()
         self.insight_tool = insight_tool or ResultInsightTool()
+        self.approval_tool = approval_tool or ApprovalTool()
 
     def run_generated_sql(self, state: AgentState) -> AgentState:
         if not state.database_id:
@@ -41,6 +44,18 @@ class SQLCopilotAgent:
         )
 
         if not state.validation_result.valid:
+            if state.validation_result.requires_approval and state.database_id:
+                approval = self.approval_tool.request_approval(
+                    database_id=state.database_id,
+                    sql=state.generated_sql,
+                    reason="This generated SQL may modify data and needs human approval.",
+                )
+                state.approval_id = approval.approval_id
+                state.approval_status = approval.status
+                state.error = None
+                state.explanation = "This query requires human approval before execution."
+                return state
+
             state.error = " ".join(state.validation_result.issues)
             return state
 

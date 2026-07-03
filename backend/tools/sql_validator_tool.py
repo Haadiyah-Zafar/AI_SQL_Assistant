@@ -26,6 +26,7 @@ class SQLValidatorTool:
                 valid=False,
                 issues=["SQL query cannot be empty."],
                 is_read_query=False,
+                requires_approval=False,
             )
 
         is_read_query = lowered.startswith("select ") or lowered.startswith("with ")
@@ -43,6 +44,7 @@ class SQLValidatorTool:
             valid=not issues,
             issues=issues,
             is_read_query=is_read_query,
+            requires_approval=not is_read_query,
         )
 
     def _first_keyword(self, lowered_sql: str) -> str | None:

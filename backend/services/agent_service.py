@@ -47,6 +47,8 @@ class AgentService:
             generated_sql=state.generated_sql,
             validation_result=state.validation_result,
             query_result=state.query_result,
+            approval_id=state.approval_id,
+            approval_status=state.approval_status,
             explanation=state.explanation,
             error=state.error,
         )
