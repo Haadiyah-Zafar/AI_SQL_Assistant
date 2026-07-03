@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import agent, approvals, connections, databases, query, upload
+from app.routes import agent, approvals, connections, databases, query, rag, upload
 from config.settings import get_settings
 
 
@@ -27,6 +27,7 @@ app.include_router(query.router, prefix="/api")
 app.include_router(connections.router, prefix="/api")
 app.include_router(agent.router, prefix="/api")
 app.include_router(approvals.router, prefix="/api")
+app.include_router(rag.router, prefix="/api")
 
 
 @app.get("/health", tags=["health"])

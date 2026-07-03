@@ -14,6 +14,13 @@ class Settings:
         self.groq_api_key = os.getenv("GROQ_API_KEY")
         self.groq_model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
         self.rag_top_k = int(os.getenv("RAG_TOP_K", "5"))
+        self.rag_backend = os.getenv("RAG_BACKEND", "chroma")
+        self.chroma_persist_dir = Path(os.getenv("CHROMA_PERSIST_DIR", "data/chroma"))
+        self.chroma_collection_name = os.getenv(
+            "CHROMA_COLLECTION_NAME",
+            "schema_chunks",
+        )
+        self.local_embedding_dimensions = int(os.getenv("LOCAL_EMBEDDING_DIMENSIONS", "384"))
         self.upload_dir = Path(os.getenv("UPLOAD_DIR", "data/uploads"))
         self.cors_origins = self._parse_csv_env(
             "CORS_ORIGINS",

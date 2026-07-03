@@ -46,6 +46,7 @@ class AgentService:
         retrieval = self.schema_retriever_tool.retrieve_relevant_schema(
             question=request.question,
             schema=schema,
+            database_id=request.database_id,
         )
         state.rag_context = retrieval.context_text
         generation_schema_context = retrieval.context_text or schema.schema_text
