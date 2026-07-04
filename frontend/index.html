@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agentic SQL Copilot</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div>
+      <h1>Agentic SQL Copilot</h1>
+      <p class="subtitle">Local end-to-end demo against the FastAPI backend</p>
+    </div>
+    <div class="status" id="health-status">Checking backend…</div>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <h2>Settings</h2>
+      <label>
+        API base URL
+        <input type="url" id="api-base" value="http://127.0.0.1:8000" />
+      </label>
+      <button type="button" id="refresh-health">Check health</button>
+    </section>
+
+    <section class="panel">
+      <h2>Upload database</h2>
+      <p class="hint">Supported: .db, .sqlite, .csv, .sql</p>
+      <input type="file" id="upload-file" accept=".db,.sqlite,.csv,.sql" />
+      <button type="button" id="upload-btn">Upload</button>
+      <pre id="upload-result" class="output"></pre>
+    </section>
+
+    <section class="panel">
+      <h2>Databases</h2>
+      <button type="button" id="refresh-databases">Refresh list</button>
+      <select id="database-select">
+        <option value="">Select a database…</option>
+      </select>
+      <button type="button" id="index-rag-btn">Index schema for RAG</button>
+      <pre id="database-result" class="output"></pre>
+    </section>
+
+    <section class="panel panel-wide">
+      <h2>Ask the agent</h2>
+      <textarea
+        id="question-input"
+        rows="4"
+        placeholder="Example: How many customers signed up last month?"
+      ></textarea>
+      <button type="button" id="ask-btn">Ask</button>
+      <div id="approval-panel" class="approval-panel hidden">
+        <h3>Approval required</h3>
+        <p id="approval-reason"></p>
+        <pre id="approval-sql"></pre>
+        <div class="row">
+          <button type="button" id="approve-btn" class="success">Approve</button>
+          <button type="button" id="reject-btn" class="danger">Reject</button>
+        </div>
+      </div>
+      <pre id="agent-result" class="output"></pre>
+      <div id="results-table-wrap" class="hidden">
+        <h3>Query results</h3>
+        <div class="table-wrap">
+          <table id="results-table"></table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

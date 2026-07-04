@@ -2,6 +2,19 @@ from functools import lru_cache
 import os
 from pathlib import Path
 
+_BACKEND_DIR = Path(__file__).resolve().parents[1]
+
+
+def _load_dotenv() -> None:
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        return
+    load_dotenv(_BACKEND_DIR / ".env")
+
+
+_load_dotenv()
+
 
 class Settings:
     def __init__(self) -> None:
